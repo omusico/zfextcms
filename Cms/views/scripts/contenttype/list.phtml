@@ -1,0 +1,31 @@
+<h3>Tipo de contenido</h3>
+
+<? if (count($this->paginator)): ?>
+<table class="listclass" width="100%" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+      <tr>
+            <th width="10%" align="left">ID</th>
+            <th width="10%" align="left">Titulo</th>
+            <th width="10%" align="left"></th>
+      </tr>
+    </thead>
+
+    <tbody>
+        <? $i=0; foreach ($this->paginator as $ctype) :  ?>
+              <tr class=<?php echo ($i%2==0?'"even"':'"odd"') ?>>
+                    <td valign="top"><?php echo $ctype['content_type_id']; ?></td>
+                    <td valign="top"><?php echo $ctype['title'] ?></td>
+                    <td valign="top">
+						<?php echo $this->href( "contenttype", "update", "editar content type", array( "cid" => $ctype['content_type_id'] ) ) ?>
+                    </td>
+
+              </tr>
+        <? $i++; endforeach; ?>
+    </tbody>
+</table>
+<?php echo $this->paginator ?>
+<? endif; ?>
+<p>
+<?php echo $this->href( "contenttype", "create", "Crear un nuevo termino" ) ?>
+</p>
+

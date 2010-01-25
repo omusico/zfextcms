@@ -1,0 +1,61 @@
+<script>
+function confirmDelete( id ) {
+	Sexy.confirm('Esta segur@ que quiere eliminar este registro?', {onComplete: 
+		function(returnvalue) { 
+            if(returnvalue) {
+              	Sexy.info('Registro eliminado con exito');
+              	location.href= "/CmsPanel/node/delete/id/" + id;
+            } else{
+            	return false;
+        	}
+    	}
+	});
+}
+$(document).ready( function (){
+    $('#content_type_id').change(function{
+        alert($('#content_type_id').value); 
+    });
+});
+</script>
+
+<h3>Contenido</h3>
+
+<? if (count($this->paginator)): ?>
+ <ul id="filter">  
+    <label for="filters">Filtrar</label>
+    <select name="content_type_id">
+        <option value="">Tipo de contenido</option>
+        <option value="1">Magazine</option>
+        <option value="2">Page</option>
+    </select> 
+  </ul>
+ <table class="listclass" width="100%" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+      <tr>
+		<th width="10%" align="left">ID</th>
+        <th width="10%" align="left">Tipo </th>
+        <th width="10%" align="left">Titulo</th>
+        <th width="10%" align="left"></th>
+      </tr>
+    </thead>
+
+    <tbody>
+        <? $i=0; foreach ($this->paginator as $node) : ?>
+        <tr class=<?php echo ($i%2==0?'"even"':'"odd"') ?>>
+          <td valign="top"><?=$node['node_id']; ?></td>
+          <td valign="top"><?=$node['type'] ?></td>
+          <td valign="top"><?=$node['title'] ?></td>
+          <td valign="top">
+			<?php echo $this->href( "node", "update", "Editar", array( "nid" => $node['node_id'], 'cyid' => $node['content_type_id'] ) ) ?>
+          	| <a href="#" onclick="confirmDelete( <?=$node['node_id']?>);return false;" >Borrar</a>
+          </td>
+        </tr>
+        <? $i++; endforeach; ?>
+    </tbody>
+</table>
+<?php echo $this->paginator ?>
+<? endif; ?>
+<p>
+<?php echo $this->href( "node", "create", "Crear un nuevo contenido" ) ?>
+</p>
+
