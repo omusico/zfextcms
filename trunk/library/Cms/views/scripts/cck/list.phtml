@@ -1,0 +1,64 @@
+<h1>Tipo de contenido</h1>
+
+<table class="fullwidth" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Label</th>
+            <th>Field Name</th>
+            <th>Tipo</th>
+            <th>Tamanio</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr class="even">
+            <td>-</td>
+            <td>Titulo</td>
+            <td>title</td>
+            <td>char</td>
+            <td></td>
+        </tr>
+        <tr class="odd">
+            <td>-</td>
+            <td>Descripcion</td>
+            <td>description</td>
+            <td>text</td>
+            <td></td>
+            <td></td>
+        </tr>
+
+
+        <? $i=0; foreach ($this->paginator as $cck) :  ?>
+        <tr class=<?php echo ($i%2==0?'"even"':'"odd"') ?>>
+            <td><?php echo $cck['cck_id']; ?></td>
+            <td><?php echo $cck['field_label'] ?></td>
+            <td><?php echo $cck['field_name'] ?></td>
+            <td><?php echo $cck['type_value'] ?></td>
+            <td><?php echo $cck['size'] ?></td>
+            <td></td>
+        </tr>
+        <? $i++; endforeach; ?>
+    </tbody>
+</table>
+
+<br/><br/>
+<h3>Usar CCK existentes</h3>
+<table class="normal" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+<p>
+    <?php echo $this->href( "cck", "create", "Crear un Tipo de CCK" ) ?>
+</p>
