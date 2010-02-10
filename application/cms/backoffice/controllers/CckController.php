@@ -2,21 +2,39 @@
 class CmsPanel_CckController extends Easytech_Controller_SecureAction {
 
     public function preDispatch(){
-        parent::preDispatch();
-        $this->view->ctype = $this->_getParam( 'cid' );
-    }
-    public function listAction() {
         if( !$this->_hasParam( 'cid' )) {
             $this->addError( 'Necesita seleccionar un tipo de contenido antes' );
             $this->_redirect( '/CmsPanel/contenttype/list/' );
             die();
         }
+        parent::preDispatch();
+        $this->view->ctype = $this->_getParam( 'cid' );
+    }
+    public function listAction() {
         $vocabulary = new Cms_Models_Vocabulary();
         $this->view->vocabularies = $vocabulary->fetchAll();
         $ctype = new Cms_Models_CCK();
         $this->view->paginator = new Easytech_Paginator(
             $ctype->getQueryList( $this->_getParam( 'cid' )), $this->_page
         );
+    }
+
+    public function sortableAction(){
+        try{
+            $orders = $this->_getParam('order');
+            $o = 50;
+            $cck = new Cms_Models_CCK();
+            foreach( $orders as $order ) {
+                $row = $cck->find( $order )->current();
+                $row->field_order = $o;
+                $row->save();
+                $o ++;
+            }
+            $this->addSuccess( "Los datos fueron actualizados con exito." );
+        }catch( Easytech_Exception $e ) {
+            $this->addError( $e->getMessage() );
+        }
+        $this->_redirect( '/CmsPanel/cck/list/cid/' . $this->_getParam('cid') );
     }
 
     public function relationAction(){
@@ -38,12 +56,6 @@ class CmsPanel_CckController extends Easytech_Controller_SecureAction {
     }
 
     public function createAction() {
-        
-        if( !$this->_hasParam( 'cid' )) {
-            $this->addError( 'Necesita seleccionar un tipo de contenido antes' );
-            $this->_redirect( '/CmsPanel/contenttype/list/cid/' . $this->_getParam( 'cid' )  );
-            die();
-        }
         $form = new Cms_Forms_CCK();
         
         if ( $this->getRequest()->isPost() ) {
@@ -55,6 +67,7 @@ class CmsPanel_CckController extends Easytech_Controller_SecureAction {
                 $bind['element'] = $bind['field_type'];
                 try{
                     $bind['field_type_id'] = $cckType->save( $bind );
+                    $bind['field_order'] = 50;
                     unset($bind['Guardar']);
                     unset($bind['element']);
                     unset($bind['validator']);
