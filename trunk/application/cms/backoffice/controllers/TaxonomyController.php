@@ -25,15 +25,28 @@ class CmsPanel_TaxonomyController extends Easytech_Controller_SecureAction {
             if ( $this->getRequest()->isPost() ) {
                 if( $form->isValid($this->getRequest()->getParams()) ) {
                     $taxonomy = new Cms_Models_Taxonomy();
-                    $taxonomy->save($form->getValues());
+                    
+                    $values = explode( ",",  $form->getValue('title'));
+                  
+                    foreach( $values as $v ) {
+                        $bind = array(
+                            'title' => $v,
+                            'vocabulary_id' => $form->getValue('vocabulary_id'),
+                            'parent_id' => $form->getValue('parent_id')
+                        );
+                        $taxonomy->save( $bind );
+                    }
                     $this->addSuccess("Elemento guardado con exito");
                     return $this->_redirect('/CmsPanel/taxonomy/list/vid/' . $this->_getParam('vid'));
                 }
                 $this->addError("El formulario contiene errores");
+            } else {
+                $vocabulary = new Cms_Models_Vocabulary();
+                $form->parent_id->setMultiOptions( $vocabulary->getActiveInArray() );
             }
             $this->view->form = $form;
         }catch(Exception $e  ){
-            throw new Easytech_Exception( "No se pudo guardar " . $e->getMessage());
+            $this->addError("El formulario contiene errores " . $e->getMessage() );
         }
     }
 
