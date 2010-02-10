@@ -19,7 +19,10 @@ class CmsPanel_NodeController extends Easytech_Controller_SecureAction {
                 return $this->_redirect('/CmsPanel/node/typelist/');
             }
             $form = new Cms_Forms_Node( NULL, $this->_getParam('cyid'));
+
             $form->content_type_id->setValue( $this->_getParam( 'cyid' ) );
+            $cck = new Cms_Models_CCK();
+            $form = $cck->addElements( $this->_getParam( 'cyid' ), $form );
             if ( $this->getRequest()->isPost() ) {
                 
                 if( $form->isValid($this->getRequest()->getParams()) ) {
@@ -33,6 +36,7 @@ class CmsPanel_NodeController extends Easytech_Controller_SecureAction {
                 $form->populate( $form->getValues());
             }
             $this->view->form = $form;
+            
         }catch(Exception $e  ){
             throw new Easytech_Exception( "No se pudo guardar " . $e->getMessage());
         }
