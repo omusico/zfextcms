@@ -17,17 +17,18 @@ class Cms_Forms_Node extends Easytech_Form
         
 		$this->addElement('text', 'title', array(
             'label'      => 'Titulo:',
-            'required'   => true
+            'required'   => true,
+            'class' => 'sf'
         ));
         
 		$this->addElement('hidden', 'content_type_id' );
-		
 		
 		$this->_renderTaxonomies();
 		
         $this->addElement('textarea', 'description', array(
             'label'      => 'Descripcion:',
-            'required'   => true
+            'required'   => true,
+            'class' => 'sf'
         ));
 
 		$this->addElement('checkbox', 'published', array(
@@ -40,16 +41,19 @@ class Cms_Forms_Node extends Easytech_Form
         
 		$this->addElement('checkbox', 'page_front', array(
             'label'      => 'Enviar a la home:'
+            
         ));
 		
         $this->addElement('file', 'node_image', array(
             'label'      => 'Imagen:',
-            'required'   => false
+            'required'   => false,
+            'class' => 'sf'
         ));
         
         $this->addElement('image', 'preview', array(
             'label'      => 'Vista Previa',
             'required'   => false
+            
         ));       
         
         $this->node_image->setDestination(
@@ -61,6 +65,7 @@ class Cms_Forms_Node extends Easytech_Form
       
         // Add the submit button
         $this->addElement( new Easytech_Form_Element_Toolbar('Guardar' ) );
+        $this->Guardar->setOrder( 100 );
     }
     
     private function _renderTaxonomies()
@@ -73,7 +78,8 @@ class Cms_Forms_Node extends Easytech_Form
             $type = ( $vocabulary['hdr']['choice'] == 'multi' ) ? 'multiselect' : 'select';
 			$this->addElement($type, $taxonomyName, array(
 				'label'      => $vocabulary['hdr']['title'].':',
-			    'required'   => (boolean) $vocabulary['hdr']['required']
+			    'required'   => (boolean) $vocabulary['hdr']['required'],
+                'class' => 'sf'
 			)); 
 			$this->$taxonomyName->setMultiOptions($vocabulary['taxonomy']);
     	}
