@@ -14,9 +14,9 @@ class Cms_Models_Vocabulary extends Easytech_Db_Table {
             $this->getAdapter()->select( )
             ->from(array('vo' => $this->_name ),array())
             ->join(
-            array('ta'=>'cms_taxonomy'),
-            'ta.vocabulary_id = vo.vocabulary_id',
-            array('taxonomy_id', 'title')
+                array('ta'=>'cms_taxonomy'),
+                'ta.vocabulary_id = vo.vocabulary_id',
+                array('taxonomy_id', 'title')
             )
             ->where('vo.title =? ', $vocabulary )
             ->order( 'title' )
@@ -27,6 +27,23 @@ class Cms_Models_Vocabulary extends Easytech_Db_Table {
         }
         return array();
     }
+
+	public function getActiveInArray( $vid = 0)
+	{
+		$query = $this->select();
+		if( $vid != 0 ) {
+			$query->where( 'vocabulary_id = ?', $vid );
+		}
+        $query->order( 'vocabulary_id ASC' );
+		$rowset = $this->fetchAll(
+			$query
+		);
+		$res = array();
+		foreach( $rowset as $row) {
+			$res[$row->vocabulary_id] = $row->title;
+		}
+		return $res;
+	}
 
     public function getName( $vid ) {
         $row = $this->find( $vid )->current();

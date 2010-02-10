@@ -6,6 +6,7 @@ class Cms_Models_Content {
     private $_node;
     private $_file;
     private $_nfile;
+    private $_cck;
 
     public function __construct() {
         $this->_vocabulary = new Cms_Models_Vocabulary();
@@ -14,6 +15,7 @@ class Cms_Models_Content {
         $this->_node = new Cms_Models_Node();
         $this->_file = new Cms_Models_File();
         $this->_nfile = new Cms_Models_NodeFile();
+        $this->_cck = new Cms_Models_CCK();
     }
 
     public function delete( $id ) {
@@ -87,18 +89,18 @@ class Cms_Models_Content {
         $rowset = $this->_nodetax->getAdapter()->fetchAll(
             $this->_nodetax->getAdapter()->select()
             ->from(
-                array( 'nt' => 'cms_node_taxonomy' ),
-                array( 'tid' => 'nt.taxonomy_id' )
+            array( 'nt' => 'cms_node_taxonomy' ),
+            array( 'tid' => 'nt.taxonomy_id' )
             )
             ->join(
-                array( 'ta' => 'cms_taxonomy' ),
-                'ta.taxonomy_id = nt.taxonomy_id',
-                array('*')
+            array( 'ta' => 'cms_taxonomy' ),
+            'ta.taxonomy_id = nt.taxonomy_id',
+            array('*')
             )
             ->join(
-                array( 'vo' => 'cms_vocabulary' ),
-                'vo.vocabulary_id = ta.vocabulary_id',
-                array('choice')
+            array( 'vo' => 'cms_vocabulary' ),
+            'vo.vocabulary_id = ta.vocabulary_id',
+            array('choice')
             )
             ->where( 'nt.node_id = ?', $nid )
         );
@@ -106,7 +108,7 @@ class Cms_Models_Content {
         foreach( $rowset as $row ) {
 
             if( $row['choice'] == 'multi' ) {
-                if( !isset( $count[$row['vocabulary_id']] )){
+                if( !isset( $count[$row['vocabulary_id']] )) {
                     $count[$row['vocabulary_id']] = 0;
                 }
                 $result[$row['vocabulary_id']][$count[$row['vocabulary_id']]] = $row;
@@ -121,43 +123,75 @@ class Cms_Models_Content {
     }
 
     public function create( $form ) {
-        $data = $form->getValues();
-        // Guardamos el archvio
-        $this->_fileInfo = $form->node_image->getFileInfo();
-        $fid = $this->_file->save( $this->_fileInfo['node_image'] );
 
-        // Los enters los reemplazamos por <br/>
+        // Iniciamos la transaccion para la creacion de un contenido
+        $db = $this->_node->getAdapter();
+        $db->beginTransaction();
 
-        $data['description'] = ereg_replace( "\n", '<br/>', $data['description'] );
-        // Guardamos el nodo
-        $nid = $this->_node->save( $data );
+        try {
+            $data = $form->getValues();
+            // Guardamos el archvio
+            $this->_fileInfo = $form->node_image->getFileInfo();
+            $fid = $this->_file->save( $this->_fileInfo['node_image'] );
 
-        // Asociamos el file al node
-        $this->_nfile = $this->_nfile->save(
-            array( 'node_id' => $nid, 'file_id' =>$fid )
-        );
+            // Los enters los reemplazamos por <br/>
 
-        // guardamos las taxonomias asociaads al nodo
-        $vids = $this->_voct->getAll( $data['content_type_id'] );
-        foreach( $vids as $voc ) {
-            if( !empty( $data[ 'taxonomy_' . $voc->vocabulary_id ]) ) {
-                if( is_array( $data[ 'taxonomy_' . $voc->vocabulary_id ] )){
-                    foreach( $data[ 'taxonomy_' . $voc->vocabulary_id ] as $r ) {
+            $data['description'] = ereg_replace( "\n", '<br/>', $data['description'] );
+            // Guardamos el nodo
+            $nid = $this->_node->save( $data );
+
+            // Asociamos el file al node
+            $this->_nfile = $this->_nfile->save(
+                array( 'node_id' => $nid, 'file_id' =>$fid )
+            );
+
+            // guardamos las taxonomias asociaads al nodo
+            $vids = $this->_voct->getAll( $data['content_type_id'] );
+            foreach( $vids as $voc ) {
+                if( !empty( $data[ 'taxonomy_' . $voc->vocabulary_id ]) ) {
+                    if( is_array( $data[ 'taxonomy_' . $voc->vocabulary_id ] )) {
+                        foreach( $data[ 'taxonomy_' . $voc->vocabulary_id ] as $r ) {
+                            $row = $this->_nodetax->createRow();
+                            $row->taxonomy_id = $r;
+                            $row->node_id = $nid;
+                            $row->save();
+                        }
+                    } else {
                         $row = $this->_nodetax->createRow();
-                        $row->taxonomy_id = $r;
+                        $row->taxonomy_id = $data[ 'taxonomy_' . $voc->vocabulary_id ];
                         $row->node_id = $nid;
                         $row->save();
                     }
-
-                } else {
-                    $row = $this->_nodetax->createRow();
-                    $row->taxonomy_id = $data[ 'taxonomy_' . $voc->vocabulary_id ];
-                    $row->node_id = $nid;
-                    $row->save();
                 }
             }
+
+            // Guardamos los CCK FIELDS
+            foreach( $data as $k => $v ) {
+                if( substr($k, 0, 10 ) == 'cck_field_') {
+                    $element = $this->_cck->geCCKByName( $k );
+                    $model = "Cms_Models_CCKValue".ucfirst( $element['element'] );
+                    $mE = new $model();
+
+                    $bind = array(
+                        'cck_id'=> $element['cck_id'],
+                        'value' => $v
+                    );
+                    $mE->save( $bind );
+                }
+            }
+            // Si todo salio bien commiteamos la transaccion
+            $db->commit();
+
+            return true;
+
+        } catch( Exception $e ) {
+
+            // Si la cosa no anduvo bien hacemos un rollback de la transaccion
+            $db->rollBack();
+
+            // tiro una exception para que se loguee en el flash Messenger
+            throw new Easytech_Exception( $e );
         }
-        return true;
     }
 
     public function update( $form, $nid ) {
@@ -191,7 +225,7 @@ class Cms_Models_Content {
         $this->_nodetax->deleteAll( $nid );
         foreach( $vids as $voc ) {
             if( !empty( $data[ 'taxonomy_' . $voc->vocabulary_id ]) ) {
-                if( is_array( $data[ 'taxonomy_' . $voc->vocabulary_id ] )){
+                if( is_array( $data[ 'taxonomy_' . $voc->vocabulary_id ] )) {
                     foreach( $data[ 'taxonomy_' . $voc->vocabulary_id ] as $r ) {
                         $row = $this->_nodetax->createRow();
                         $row->taxonomy_id = $r;
