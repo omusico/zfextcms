@@ -11,8 +11,22 @@ class Cms_Models_CCK extends Easytech_Db_Table
 		return $this->getAdapter()->select()
             ->from( array( 'cck' => 'cms_cck' ), array( '*' )  )
             ->join( array( 'ccft' => 'cms_cck_field_type' ), 'ccft.cck_field_type_id = cck.field_type_id', array( '*' ) )
-            ->where('content_type_id =? ', $ctypeId );
+            ->where('content_type_id =? ', $ctypeId )
+            ->order( 'cck.field_order' );
 	}
+
+    public function geCCKByName( $name ) {
+        if( empty( $name )) {
+            throw new Easytech_Exception( "El nombre del campo cck esta vacio" );
+        }
+        $row = $this->getAdapter()->fetchRow(
+            $this->getAdapter()->select()
+                ->from( array( 'cck' => 'cms_cck' ), array( '*' )  )
+                ->join( array( 'ccft' => 'cms_cck_field_type' ), 'ccft.cck_field_type_id = cck.field_type_id', array( '*' ) )
+                ->where('cck.field_name= ?', $name )
+        );
+        return $row;
+    }
 	
 	public function getAll()
 	{
@@ -43,7 +57,7 @@ class Cms_Models_CCK extends Easytech_Db_Table
                 ->join( array( 'ccft' => 'cms_cck_field_type'), 'ccft.cck_field_type_id = cck.field_type_id', array('*') )
                 ->where( 'cck.content_type_id=?', $ctid )
         );
-
+        
         $taxonomy = new Cms_Models_Taxonomy();
         foreach( $rowset as $row ) {
             $form->addElement(
@@ -54,9 +68,9 @@ class Cms_Models_CCK extends Easytech_Db_Table
                     'class' => 'sf'
                 )
             );
+            $form->{$row['field_name']}->setOrder( $row['field_order'] );
 
             if( $row['element'] == 'select') {
-
                 $voc = $this->getAdapter()->fetchRow( "SELECT vocabulary_id FROM cms_cck_vocabulary WHERE cck_id='{$row['cck_id']}'" );
                 if( count( $voc)){
                     $tax = $taxonomy->getActiveInArray( $voc['vocabulary_id'] );
@@ -68,6 +82,7 @@ class Cms_Models_CCK extends Easytech_Db_Table
     }
 
     public function save( $bind, $id = NULL ) {
+        $bind['field_name'] = "cck_field_" . $bind['field_name'];
         $row = $this->fetchRow( $this->select()->where('field_name=?', $bind['field_name']) );
         if( count( $row )) {
             throw new Easytech_Exception( "El nombre de campo ya existe." );

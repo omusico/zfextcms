@@ -39,4 +39,17 @@ class Cms_Models_CCKFieldType extends Easytech_Db_Table
         
 
     }
+    
+    public function save( $bind, $id = NULL) {
+        $row = $this->fetchRow(
+            $this->select()
+                ->where( 'element=?',$bind['element'] )
+                ->where( 'required=?',$bind['required'] )
+        );
+        if( count( $row ) && is_null( $id ) ) {
+            return $row->cck_field_type_id;
+        }
+        return parent::save( $bind, $id );
+
+    }
 }

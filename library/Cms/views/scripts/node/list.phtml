@@ -21,31 +21,24 @@ $(document).ready( function (){
 <h3>Contenido</h3>
 
 <? if (count($this->paginator)): ?>
- <ul id="filter">  
-    <label for="filters">Filtrar</label>
-    <select name="content_type_id">
-        <option value="">Tipo de contenido</option>
-        <option value="1">Magazine</option>
-        <option value="2">Page</option>
-    </select> 
-  </ul>
- <table class="listclass" width="100%" border="0" cellpadding="0" cellspacing="0">
+ 
+ <table class="fullwidth" border="0" cellpadding="0" cellspacing="0">
     <thead>
       <tr>
-		<th width="10%" align="left">ID</th>
-        <th width="10%" align="left">Tipo </th>
-        <th width="10%" align="left">Titulo</th>
-        <th width="10%" align="left"></th>
+		<th>ID</th>
+        <th>Tipo </th>
+        <th>Titulo</th>
+        <th></th>
       </tr>
     </thead>
 
     <tbody>
         <? $i=0; foreach ($this->paginator as $node) : ?>
         <tr class=<?php echo ($i%2==0?'"even"':'"odd"') ?>>
-          <td valign="top"><?=$node['node_id']; ?></td>
-          <td valign="top"><?=$node['type'] ?></td>
-          <td valign="top"><?=$node['title'] ?></td>
-          <td valign="top">
+          <td><?=$node['node_id']; ?></td>
+          <td><?=$node['type'] ?></td>
+          <td><?=$node['title'] ?></td>
+          <td>
 			<?php echo $this->href( "node", "update", "Editar", array( "nid" => $node['node_id'], 'cyid' => $node['content_type_id'] ) ) ?>
           	| <a href="#" onclick="confirmDelete( <?=$node['node_id']?>);return false;" >Borrar</a>
           </td>

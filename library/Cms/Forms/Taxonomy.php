@@ -11,21 +11,20 @@ class Cms_Forms_Taxonomy extends Easytech_Form
         ));        
         
 		$this->addElement('text', 'title', array(
-            'label'      => 'Titulo:',
+            'label'      => 'Termino: (puede ingresar varios seprandolos por ,)',
             'required'   => true,
-            'filters'    => array(),
-            'validators' => array()
+            'class'     => 'sf'
         ));
 
-		$this->addElement('text', 'parent_id', array(
-            'label'      => 'ParentId:',
+		$this->addElement('select', 'parent_id', array(
+            'label'      => 'Vocabulario Padre:',
             'required'   => false,
-            'filters'    => array(),
-            'validators' => array()
+            'class'     => 'sf'
         ));
-                
+
+        $this->parent_id->setRegisterInArrayValidator( false );
         // Add the submit button
-        $this->addElement( new Easytech_Form_Element_Toolbar('Guardar' ) );
+        $this->addElement( new Easytech_Form_Element_Toolbar( 'Guardar' ));
     }
 }
 

@@ -2,60 +2,53 @@
     function saveVocabularyRelation( cckId ) {
         $.ajax({
             type: "POST",
-            url: "/CmsPanel/cck/relation/",
+            url: "/CmsPanel/cck/relation/cid/<?=$this->ctype?>",
             data: "cckId="+cckId+"&vid="+ $('#select_' + cckId).val() 
         });
 
     }
 </script>
+
+<style type="text/css">
+    #sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+    #sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; }
+    #sortable li span { position: absolute; margin-left: -1.3em; }
+</style>
+<script type="text/javascript">
+    $(function() {
+        $("#sortable").sortable();
+        $("#sortable").disableSelection();
+    });
+</script>
+
 <h1>Tipo de contenido</h1>
-
-<table class="normal" border="0" cellpadding="0" cellspacing="0">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Label</th>
-            <th>Field Name</th>
-            <th>Taxonomia</th>
-            <th></th>
-        </tr>
-    </thead>
-
-    <tbody>
-        <tr class="even">
-            <td>-</td>
-            <td>Titulo</td>
-            <td>title</td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr class="odd">
-            <td>-</td>
-            <td>Descripcion</td>
-            <td>description</td>
-            <td></td>
-            <td></td>
-        </tr>
+<form id="sortable-cck" name="sortable-cck" method="post" action="/CmsPanel/cck/sortable/cid/<?=$this->ctype?>">
+    
+<ul class="normal" id="sortable" >
 
         <? $i=0; foreach ($this->paginator as $cck) :  ?>
-        <tr class=<?php echo ($i%2==0?'"even"':'"odd"') ?>>
-            <td><?php echo $cck['cck_id']; ?></td>
-            <td><?php echo $cck['field_label'] ?></td>
-            <td><?php echo $cck['field_name'] ?></td>
-            <td>
-                    <?php if( $cck['element'] == 'select' ) : ?>
+        <li class="ui-state-default">
+            
+            <input type="hidden" value="<?=$cck['cck_id']?>" name="order[]" id="order[]" />
+            <?php echo $cck['field_label'] ?>
+
+             <?php if( $cck['element'] == 'select' ) : ?>
+            <div style="float:right;">
                 <select id="select_<?=$cck['cck_id']?>" name="select_<?=$cck['cck_id']?>" onclick="saveVocabularyRelation( '<?=$cck['cck_id']?>')">
                     <option >Seleccione</option>
                             <?php foreach( $this->vocabularies as $v ): ?>
                     <option value="<?=$v->vocabulary_id?>"><?=$v->title?></option>
                             <?php endforeach; ?>
                 </select>
+                </div>
                     <?php endif; ?>
-            <td></td>
-        </tr>
+            
+        </li>
             <? $i++; endforeach; ?>
-    </tbody>
-</table>
+</ul>
+    <br/>
+    <p><input type="submit" value="Guardar Orden" name="boton" id="boton" class="sf" /></p>
+</form>
 
 <br/><br/>
 <h3>Usar CCK existentes</h3>
