@@ -1,13 +1,22 @@
+<script type="text/javascript">
+    function saveVocabularyRelation( cckId ) {
+        $.ajax({
+            type: "POST",
+            url: "/CmsPanel/cck/relation/",
+            data: "cckId="+cckId+"&vid="+ $('#select_' + cckId).val() 
+        });
+
+    }
+</script>
 <h1>Tipo de contenido</h1>
 
-<table class="fullwidth" border="0" cellpadding="0" cellspacing="0">
+<table class="normal" border="0" cellpadding="0" cellspacing="0">
     <thead>
         <tr>
             <th>ID</th>
             <th>Label</th>
             <th>Field Name</th>
-            <th>Tipo</th>
-            <th>Tamanio</th>
+            <th>Taxonomia</th>
             <th></th>
         </tr>
     </thead>
@@ -17,14 +26,13 @@
             <td>-</td>
             <td>Titulo</td>
             <td>title</td>
-            <td>char</td>
+            <td></td>
             <td></td>
         </tr>
         <tr class="odd">
             <td>-</td>
             <td>Descripcion</td>
             <td>description</td>
-            <td>text</td>
             <td></td>
             <td></td>
         </tr>
@@ -34,11 +42,18 @@
             <td><?php echo $cck['cck_id']; ?></td>
             <td><?php echo $cck['field_label'] ?></td>
             <td><?php echo $cck['field_name'] ?></td>
-            <td><?php echo $cck['type_value'] ?></td>
-            <td><?php echo $cck['size'] ?></td>
+            <td>
+                    <?php if( $cck['element'] == 'select' ) : ?>
+                <select id="select_<?=$cck['cck_id']?>" name="select_<?=$cck['cck_id']?>" onclick="saveVocabularyRelation( '<?=$cck['cck_id']?>')">
+                    <option >Seleccione</option>
+                            <?php foreach( $this->vocabularies as $v ): ?>
+                    <option value="<?=$v->vocabulary_id?>"><?=$v->title?></option>
+                            <?php endforeach; ?>
+                </select>
+                    <?php endif; ?>
             <td></td>
         </tr>
-        <? $i++; endforeach; ?>
+            <? $i++; endforeach; ?>
     </tbody>
 </table>
 
@@ -59,5 +74,5 @@
     </tbody>
 </table>
 <p>
-    <?php echo $this->href( "cck", "create", "Crear un Tipo de CCK" ) ?>
+    <?php echo $this->href( "cck", "create", "Crear un Tipo de CCK",array( "cid" => $this->ctype ) ) ?>
 </p>
