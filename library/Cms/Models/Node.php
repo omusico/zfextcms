@@ -29,6 +29,22 @@ class Cms_Models_Node extends Easytech_Db_Table {
 
     }
 
+    public function getActiveInArray( $ctid = 0)
+	{
+		$query = $this->select();
+		if( $ctid != 0 ) {
+			$query->where( 'content_type_id = ?', $ctid );
+		}
+		$query->order('title DESC');
+		$rowset = $this->fetchAll(
+			$query
+		);
+		$res = array();
+		foreach( $rowset as $row) {
+			$res[$row->node_id] = $row->title;
+		}
+		return $res;
+	}
 
     public function getContentFromTid( $tid ) {
         if( empty( $tid )) {

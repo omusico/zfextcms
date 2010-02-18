@@ -35,7 +35,6 @@ class Cms_View_Helper_Images extends Zend_View_Helper_Abstract {
             }
             return $this->_config->app->img->url . $name;
         }
-        echo "222";exit;
         return NULL;
     }
 }

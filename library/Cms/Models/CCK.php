@@ -3,6 +3,10 @@ class Cms_Models_CCK extends Easytech_Db_Table
 {
 	protected $_name = 'cms_cck';
 
+    public function cleanNode( $nid ) {
+        throw new Easytech_Exception("TODAVIA NO SE CREO ESTA FUNCIONALIDAD");
+    }
+
 	public function getQueryList( $ctypeId )
 	{
         if( empty( $ctypeId )) {
@@ -59,7 +63,13 @@ class Cms_Models_CCK extends Easytech_Db_Table
         );
         
         $taxonomy = new Cms_Models_Taxonomy();
+        $node = new Cms_Models_Node();
         foreach( $rowset as $row ) {
+            $type = $row['element'];
+            if( $row['element'] == 'content_type' ) {
+                $row['element'] = 'multiselect';
+                
+            }
             $form->addElement(
                 $row['element'],
                 $row['field_name'],
@@ -68,7 +78,16 @@ class Cms_Models_CCK extends Easytech_Db_Table
                     'class' => 'sf'
                 )
             );
+
             $form->{$row['field_name']}->setOrder( $row['field_order'] );
+
+            if( $type == 'content_type'){
+                $r = $this->getAdapter()->fetchRow( "SELECT content_type_id FROM cms_cck_content_type WHERE cck_id='{$row['cck_id']}'" );
+                if( count( $r)){
+                    $re = $node->getActiveInArray( $r['content_type_id'] );
+                    $form->{$row['field_name']}->setMultiOptions( $re );
+                }
+            }
 
             if( $row['element'] == 'select') {
                 $voc = $this->getAdapter()->fetchRow( "SELECT vocabulary_id FROM cms_cck_vocabulary WHERE cck_id='{$row['cck_id']}'" );

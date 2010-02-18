@@ -45,7 +45,8 @@ class Cms_Forms_CCK extends Easytech_Form
             'textarea'=>'textarea',
             'image'=>'image',
             'select'=>'select',
-            'checkbox'=>'checkbox'
+            'checkbox'=>'checkbox',
+            'content_type'=>'content type'
         );
 
         $this->field_type->setMultiOptions( $types );
