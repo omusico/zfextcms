@@ -7,6 +7,15 @@
         });
 
     }
+
+    function saveContentTypeRelation( cckId ) {
+        $.ajax({
+            type: "POST",
+            url: "/CmsPanel/cck/relationctype/cid/<?=$this->ctype?>",
+            data: "cckId="+cckId+"&ctypeid="+ $('#select_' + cckId).val()
+        });
+    }
+
 </script>
 
 <style type="text/css">
@@ -32,16 +41,27 @@
             <input type="hidden" value="<?=$cck['cck_id']?>" name="order[]" id="order[]" />
             <?php echo $cck['field_label'] ?>
 
-             <?php if( $cck['element'] == 'select' ) : ?>
+            <?php if( $cck['element'] == 'select' ) : ?>
             <div style="float:right;">
                 <select id="select_<?=$cck['cck_id']?>" name="select_<?=$cck['cck_id']?>" onclick="saveVocabularyRelation( '<?=$cck['cck_id']?>')">
                     <option >Seleccione</option>
-                            <?php foreach( $this->vocabularies as $v ): ?>
+                                                <?php foreach( $this->vocabularies as $v ): ?>
                     <option value="<?=$v->vocabulary_id?>"><?=$v->title?></option>
-                            <?php endforeach; ?>
+                                                <?php endforeach; ?>
                 </select>
-                </div>
-                    <?php endif; ?>
+            </div>
+            <?php endif; ?>
+
+            <?php if( $cck['element'] == 'content_type' ) : ?>
+            <div style="float:right;">
+                <select id="select_<?=$cck['cck_id']?>" name="select_<?=$cck['cck_id']?>" onclick="saveContentTypeRelation( '<?=$cck['cck_id']?>')">
+                    <option >Seleccione</option>
+                    <?php foreach( $this->contentTypes as $ct ): ?>
+                    <option value="<?=$ct->content_type_id?>"><?=$ct->title?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php endif; ?>
             
         </li>
             <? $i++; endforeach; ?>

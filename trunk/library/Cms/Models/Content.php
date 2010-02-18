@@ -124,7 +124,7 @@ class Cms_Models_Content {
 
     public function create( $form ) {
 
-        // Iniciamos la transaccion para la creacion de un contenido
+    // Iniciamos la transaccion para la creacion de un contenido
         $db = $this->_node->getAdapter();
         $db->beginTransaction();
 
@@ -169,14 +169,28 @@ class Cms_Models_Content {
             foreach( $data as $k => $v ) {
                 if( substr($k, 0, 10 ) == 'cck_field_') {
                     $element = $this->_cck->geCCKByName( $k );
-                    $model = "Cms_Models_CCKValue".ucfirst( $element['element'] );
+
+                    // Conseguimos el nombre del modelo a partir del elemento
+                    $model = "Cms_Models_CCKValue".str_replace( " ", "", ucwords( str_replace( "_"," ",$element['element'] )));
                     $mE = new $model();
 
-                    $bind = array(
-                        'cck_id'=> $element['cck_id'],
-                        'value' => $v
-                    );
-                    $mE->save( $bind );
+                    if( !is_array( $v )){
+                        $bind = array(
+                            'cck_id'=> $element['cck_id'],
+                        'value' => (int)$v
+                        );
+                        $mE->save( $bind );
+                    }else {
+                        foreach( $v as $l ) {
+                            $bind = array(
+                                'cck_id'=> $element['cck_id'],
+                                'value' => (int)$l
+                            );
+                            $mE->save( $bind );
+                        }
+                    }
+
+                    
                 }
             }
             // Si todo salio bien commiteamos la transaccion
@@ -186,7 +200,7 @@ class Cms_Models_Content {
 
         } catch( Exception $e ) {
 
-            // Si la cosa no anduvo bien hacemos un rollback de la transaccion
+        // Si la cosa no anduvo bien hacemos un rollback de la transaccion
             $db->rollBack();
 
             // tiro una exception para que se loguee en el flash Messenger
@@ -240,6 +254,24 @@ class Cms_Models_Content {
                 }
             }
         }
+
+
+        // Guardamos los CCK FIELDS
+        $this->_cck->cleanNode( $nid );
+        foreach( $data as $k => $v ) {
+            if( substr($k, 0, 10 ) == 'cck_field_') {
+                $element = $this->_cck->geCCKByName( $k );
+                // Conseguimos el nombre del modelo a partir del elemento
+                $model = "Cms_Models_CCKValue".str_replace( " ", "", ucwords( str_replace( "_"," ",$element['element'] )));
+                $mE = new $model();
+                $bind = array(
+                    'cck_id'=> $element['cck_id'],
+                    'value' => $v
+                );
+                $mE->save( $bind );
+            }
+        }
+
         return true;
     }
 }
