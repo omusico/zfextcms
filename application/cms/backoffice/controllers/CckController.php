@@ -13,6 +13,10 @@ class CmsPanel_CckController extends Easytech_Controller_SecureAction {
     public function listAction() {
         $vocabulary = new Cms_Models_Vocabulary();
         $this->view->vocabularies = $vocabulary->fetchAll();
+
+        $contentType = new Cms_Models_ContentType();
+        $this->view->contentTypes = $contentType->fetchAll();
+
         $ctype = new Cms_Models_CCK();
         $this->view->paginator = new Easytech_Paginator(
             $ctype->getQueryList( $this->_getParam( 'cid' )), $this->_page
@@ -37,21 +41,37 @@ class CmsPanel_CckController extends Easytech_Controller_SecureAction {
         $this->_redirect( '/CmsPanel/cck/list/cid/' . $this->_getParam('cid') );
     }
 
-    public function relationAction(){
-        $cckVocabulary = new Cms_Models_CCKVocabulary();
-        $row = $cckVocabulary->fetchRow(
-            $cckVocabulary->select()
+    public function relationctypeAction(){
+        $cckType = new Cms_Models_CCKContentType();
+        $row = $cckType->fetchRow(
+            $cckType->select()
             ->where('cck_id =? ', $this->_getParam('cckId'))
         );
         if( !count( $row ))  {
-            $row = $cckVocabulary->createRow();
-            $row->vocabulary_id = $this->_getParam('vid');
-            $row->cck_id = $this->_getParam('cckId');
-        } else {
-            $row->vocabulary_id = $this->_getParam('vid');
-            $row->cck_id = $this->_getParam('cckId');
+            $row = $cckType->createRow();
         }
+        $row->content_type_id = $this->_getParam('ctypeid');
+        $row->cck_id = $this->_getParam('cckId');
         $row->save();
+        exit;
+    }
+
+
+    public function relationAction(){
+            $cckVocabulary = new Cms_Models_CCKVocabulary();
+            $row = $cckVocabulary->fetchRow(
+                $cckVocabulary->select()
+                ->where('cck_id =? ', $this->_getParam('cckId'))
+            );
+            if( !count( $row ))  {
+                $row = $cckVocabulary->createRow();
+                $row->vocabulary_id = $this->_getParam('vid');
+                $row->cck_id = $this->_getParam('cckId');
+            } else {
+                $row->vocabulary_id = $this->_getParam('vid');
+                $row->cck_id = $this->_getParam('cckId');
+            }
+            $row->save();
         exit;
     }
 
@@ -74,6 +94,7 @@ class CmsPanel_CckController extends Easytech_Controller_SecureAction {
                     unset($bind['required']);
                     unset($bind['field_type']);
                     unset($bind['cck_id']);
+                    
                     $cck->save( $bind );
                     $this->addSuccess("Elemento guardado con exito");
                     return $this->_redirect('/CmsPanel/cck/list/cid/' . $this->_getParam( 'cid' ) );

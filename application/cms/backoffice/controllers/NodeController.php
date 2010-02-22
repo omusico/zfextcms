@@ -13,6 +13,7 @@ class CmsPanel_NodeController extends Easytech_Controller_SecureAction {
     }
 
     public function createAction() {
+        
         try {
             if( !$this->_hasParam('cyid')) {
                 $this->addWarning( 'Seleccione un tipo de contenido' );
@@ -36,19 +37,19 @@ class CmsPanel_NodeController extends Easytech_Controller_SecureAction {
                 $form->populate( $form->getValues());
             }
             $this->view->form = $form;
-            
         }catch(Exception $e  ){
             throw new Easytech_Exception( "No se pudo guardar " . $e->getMessage());
         }
     }
 
     public function updateAction() {
+        
         try {
             if( !$this->_hasParam('nid')) {
                 $this->addError("Falta seleccionar el contenido");
                 return $this->_redirect('/CmsPanel/node/list');
             }
-            
+
             $form = new Cms_Forms_Node( NULL, $this->_getParam('cyid'));
             $content = new Cms_Models_Content();
             if ( $this->getRequest()->isPost() ) {
@@ -62,10 +63,8 @@ class CmsPanel_NodeController extends Easytech_Controller_SecureAction {
                 $form->populate( $form->getValues());
             }else {
                 $node = $content ->find( $this->_getParam( 'nid' ));
-                //print_r($node);exit;
                 $url = $this->view->images()->getUrl( $node['files'][0]['name'], '100x100' );
                 $form->preview->setImageValue( $url );
-
                 $form->content_type_id->setValue( $node['hdr']['content_type_id']);
                 $form->populateWithNode( $node );
             }

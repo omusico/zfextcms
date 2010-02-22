@@ -25,9 +25,7 @@ class CmsPanel_TaxonomyController extends Easytech_Controller_SecureAction {
             if ( $this->getRequest()->isPost() ) {
                 if( $form->isValid($this->getRequest()->getParams()) ) {
                     $taxonomy = new Cms_Models_Taxonomy();
-                    
                     $values = explode( ",",  $form->getValue('title'));
-                  
                     foreach( $values as $v ) {
                         $bind = array(
                             'title' => $v,
