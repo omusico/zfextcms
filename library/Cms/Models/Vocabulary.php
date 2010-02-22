@@ -30,6 +30,7 @@ class Cms_Models_Vocabulary extends Easytech_Db_Table {
 
 	public function getActiveInArray( $vid = 0)
 	{
+        
 		$query = $this->select();
 		if( $vid != 0 ) {
 			$query->where( 'vocabulary_id = ?', $vid );
@@ -39,6 +40,7 @@ class Cms_Models_Vocabulary extends Easytech_Db_Table {
 			$query
 		);
 		$res = array();
+        $res[0] = '';
 		foreach( $rowset as $row) {
 			$res[$row->vocabulary_id] = $row->title;
 		}

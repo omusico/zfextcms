@@ -177,20 +177,20 @@ class Cms_Models_Content {
                     if( !is_array( $v )){
                         $bind = array(
                             'cck_id'=> $element['cck_id'],
-                        'value' => (int)$v
+                            'node_id'=> $nid,
+                            'value' => (int)$v
                         );
                         $mE->save( $bind );
                     }else {
                         foreach( $v as $l ) {
                             $bind = array(
                                 'cck_id'=> $element['cck_id'],
+                                'node_id'=> $nid,
                                 'value' => (int)$l
                             );
                             $mE->save( $bind );
                         }
                     }
-
-                    
                 }
             }
             // Si todo salio bien commiteamos la transaccion
